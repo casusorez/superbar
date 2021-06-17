@@ -1,0 +1,15 @@
+﻿créer mise en barre atelier
+	pour chaque ligne de bc, ajouter des sous-lignes pour spécifier la mise en barre
+regrouper par fagot
+vérifications avant mise en barre :
+	infos formulaire
+	cohérence refs nomenclature / conds
+	cohérence refs conds / accessoires
+	=> Créer un onglet verif (mise en couleur rouge / vert lors du clic)
+Pop up :
+	OK
+	Erreur (Cf. onglet verif)
+
+joints :
+	validation cellules : ajouter 1, 2 etc. jusqu'au nb inscrit
+
