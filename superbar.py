@@ -5,7 +5,7 @@ Created on Mon May 31 17:27:44 2021
 @author: TC
 """
 
-import numpy as np
+# import numpy as np
 from pprint import pprint
 from openpyxl import *
 import datetime
@@ -233,7 +233,7 @@ def get_besoins_max(besoins_shaped : list, conds : list) -> list :
     for b1 in range(len(besoins_shaped)) :
         ref = besoins_shaped[b1][0][1]
         cond_max = conds[b1][-1][4] * 1000
-        print("\n cond max : \n", ref, cond_max)
+        # print("\n cond max : \n", ref, cond_max)
         besoin_somme = 0
         count = 0
         for b2 in range(len(besoins_shaped[b1])) :
@@ -249,7 +249,7 @@ def get_combis_opti(combis : list, besoins_shaped : list, besoins_shaped_check :
     combis_opti = list()
     for c in range(len(conds)) :
     # for c in range(2, 3) : 
-        print(conds[c])
+        # print(conds[c])
         #pprint(besoins_shaped[c])
         #pprint(combis[c]) ----> VIDE !!!
         
@@ -292,13 +292,14 @@ def get_combis_opti(combis : list, besoins_shaped : list, besoins_shaped_check :
             combis = combis_clone.copy()
     return combis_opti
 
-def get_new_wb_name(wb_name) :
+def get_new_wb_name(wb_name, path) :
     wb = load_workbook(filename = wb_name)
     ws = wb['SuperBar']
     ref = str(ws['B3'].value)
     
     now = datetime.datetime.now()
-    return '2_resultats\\' \
+    return path \
+        + '2_resultats\\' \
         + ref.replace(" ", "_") + "_" \
         + str(now.year).zfill(4) + "_" + str(now.month).zfill(2) + "_" + str(now.day).zfill(2) + "_" \
         + str(now.hour).zfill(2) + "_" + str(now.minute).zfill(2) + "_" + str(now.second).zfill(2) \
@@ -324,19 +325,18 @@ def create_wb(wb_name) :
     wb.save(wb_name)
     return wb
 
-def copy_sheet_bc(wb, new_wb, new_wb_name, new_ws_name) :
+def copy_sheet_bc(wb, new_wb, new_wb_name, new_ws_name, path) :
     wb_sh, new_wb_sh = wb["Bon de commande"], new_wb[new_ws_name]
     mr = wb_sh.max_row
     mc = wb_sh.max_column
     new_wb_sh.set_printer_settings(wb_sh.paper_size, wb_sh.orientation)
-    # new_wb_sh.print_area = wb_sh.print_area
     new_wb_sh.page_margins = wb_sh.page_margins
     new_wb_sh.oddHeader = wb_sh.oddHeader
     new_wb_sh.oddFooter= wb_sh.oddFooter
-    img = drawing.image.Image('Logo.png') 
-    img.height = 100
-    img.width = 100
-    new_wb_sh.add_image(img, 'E3')
+    # img = drawing.image.Image(path + 'Logo.png') 
+    # img.height = 100
+    # img.width = 100
+    # new_wb_sh.add_image(img, 'E3')
     new_wb_sh['E3'].alignment = styles.Alignment(horizontal='left')
     new_wb.save(filename = new_wb_name)
     
@@ -394,7 +394,7 @@ def write_table(new_wb, new_wb_name, tab, ws_name) :
                     for k in range(1, int(tab[i][5]) + 1):
                         f += ',' + str(k)
                 f += '"'
-                print(f)
+                # print(f)
                 dv = DataValidation(type="list", formula1=f)
                 dv.ranges.add('F' + str(i + 14))
                 ws.add_data_validation(dv)
@@ -538,51 +538,86 @@ def get_ats(bcs, combis_opti, besoin_shaped, conds) :
                                 ats[-count-1][5] = int(longueur / 50000) + 1
     return ats
         
-    
-wb_name = 'SuperBar_tmp.xlsm'
+path = 'C:\\Users\\tc\\OneDrive\\Documents\\Projets\\superbar\\'
+wb_name = path + 'SuperBar_tmp.xlsm'
 wb = load_workbook(filename = wb_name, data_only = True)
 ws_name = 'SuperBar'
 
+print("\n\n*******************SUPERBAR*******************")
+print("\nRécupération de la nomenclature...")
 nomenclature = get_nomenclature(wb_name)
+print("OK")
 # pprint(nomenclature)
+print("\nRécupération des conditionnements...")
 conditionnements = get_conditionnements(wb_name)
+print("OK")
 # pprint(conditionnements)
+print("\nRécupération des accessoires...")
 accessoires = get_accessoires(wb_name)
 # pprint(accessoires)
+print("OK")
+print("\nCalcul des besoins...")
 besoins = get_besoins(nomenclature)
 # print(len(besoins))
 # pprint(besoins)
+print("OK")
+print("\nMise en forme des besoins...")
 besoins_shaped = shape_besoins(besoins)
 # print(len(besoins_shaped))
-pprint(besoins_shaped)
+# pprint(besoins_shaped)
+print("OK")
+print("\nMise en forme des conditionnements...")
 conds = get_conds(besoins, conditionnements)
 # print(len(conds))
 # pprint(conds)
+print("OK")
+print("\nCalcul des besoins max...")
 besoins_max = get_besoins_max(besoins_shaped, conds)
 # print(len(besoins_max))
-pprint(besoins_max)
+# pprint(besoins_max)
+print("OK")
+print("\nCréation du tableau de checks besoins...")
 besoins_shaped_check = [[True for _ in range(len(besoins_shaped[b]))] for b in range(len(besoins_shaped))]
 # print(len(besoins_shaped_check))
 # pprint(besoins_shaped_check)
+print("OK")
+print("\nCalcul des combinaisons...")
 combis = get_combis(besoins_shaped, besoins_max)
 # pprint(combis)
+print("OK")
+print("\nCalcul des combinaisons optimales...")
 combis_opti = get_combis_opti(combis, besoins_shaped, besoins_shaped_check, conds)
 # pprint(combis_opti)
+print("OK")
+print("\nAjout des accessoires...")
 combis_opti = fill_accessoires(wb_name, accessoires, combis_opti)
 # pprint(combis_opti)
-new_wb_name = get_new_wb_name(wb_name)
+print("OK")
+print("\nCalcul du nom du nouveau classeur...")
+new_wb_name = get_new_wb_name(wb_name, path)
 # print(new_wb_name)
+print("OK")
+print("\nRécupération de la nomenclature...")
 new_wb = create_wb(new_wb_name)
-
-copy_sheet_bc(wb, new_wb, new_wb_name, "Bon de commande")
-copy_sheet_bc(wb, new_wb, new_wb_name, "Debit atelier")
-
+print("OK")
+print("\nRécupération de la nomenclature...")
+copy_sheet_bc(wb, new_wb, new_wb_name, "Bon de commande", path)
+print("OK")
+print("\nRécupération de la nomenclature...")
+copy_sheet_bc(wb, new_wb, new_wb_name, "Debit atelier", path)
+print("OK")
+print("\nRécupération de la nomenclature...")
 bcs = get_bcs(combis_opti, conditionnements)
 # pprint(bcs)
+print("OK")
+print("\nRécupération de la nomenclature...")
 write_table(new_wb, new_wb_name, bcs, "Bon de commande")
+print("OK")
+print("\nRécupération de la nomenclature...")
 ats = get_ats(bcs, combis_opti, besoins_shaped, conds)
 # pprint(ats)
-
+print("OK")
+print("\nRécupération de la nomenclature...")
 write_table(new_wb, new_wb_name, ats, "Debit atelier")
 
 
