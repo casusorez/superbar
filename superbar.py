@@ -538,8 +538,8 @@ def get_ats(bcs, combis_opti, besoin_shaped, conds) :
                                 ats[-count-1][5] = int(longueur / 50000) + 1
     return ats
         
-path = 'C:\\Users\\tc\\OneDrive\\Documents\\Projets\\superbar\\'
-wb_name = path + 'SuperBar_tmp.xlsm'
+path = 'Z:\\Commun\\2. PARTIE BE\\superbar\\'
+wb_name = path + '0_sources\\SuperBar_tmp.xlsm'
 wb = load_workbook(filename = wb_name, data_only = True)
 ws_name = 'SuperBar'
 
@@ -597,28 +597,29 @@ print("\nCalcul du nom du nouveau classeur...")
 new_wb_name = get_new_wb_name(wb_name, path)
 # print(new_wb_name)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCréation du nouveau classeur...")
 new_wb = create_wb(new_wb_name)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCopie / création de la feuille bon de commande...")
 copy_sheet_bc(wb, new_wb, new_wb_name, "Bon de commande", path)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCopie / création de la feuille débit atelier...")
 copy_sheet_bc(wb, new_wb, new_wb_name, "Debit atelier", path)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nMise en forme des lignes bon de commande...")
 bcs = get_bcs(combis_opti, conditionnements)
 # pprint(bcs)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nEcriture des lignes bon de commande...")
 write_table(new_wb, new_wb_name, bcs, "Bon de commande")
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nMise en forme des lignes débit atelier...")
 ats = get_ats(bcs, combis_opti, besoins_shaped, conds)
 # pprint(ats)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nEcriture des lignes débit atelier...")
 write_table(new_wb, new_wb_name, ats, "Debit atelier")
+print("OK")
 
 
 # wb = Workbook()
