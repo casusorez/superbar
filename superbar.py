@@ -537,9 +537,41 @@ def get_ats(bcs, combis_opti, besoin_shaped, conds) :
                             elif ats[-count-1][4].find('50') > -1 :
                                 ats[-count-1][5] = int(longueur / 50000) + 1
     return ats
+
+def group_ats(ats) :
+    ats_grouped = list()
+    to_del = set()
+    for a1 in range(len(ats)) :
+        if a1 not in to_del \
+        and ats[a1][1] != '' :
+            ats_grouped.append(ats[a1].copy())
+            index = len(ats_grouped) - 1
+            for a3 in range(a1 + 1, len(ats)) :
+                if ats[a3][1] != '' :
+                    break
+                ats_grouped.append(ats[a3].copy())              
+            for a2 in range(a1 + 1, len(ats)) :                
+                if ats[a1][2] == ats[a2][2] \
+                and ats[a1][4] == ats[a2][4] :
+                    coupex = list()
+                    egal = True
+                    for a3 in range(a1 + 1, a2) :
+                        if ats[a3][1] != '' :
+                            break
+                        if a2 == len(ats) - 1 \
+                        or ats[a3][1] != ats[a2 + a3 - a1][1] \
+                        or ats[a3][2] != ats[a2 + a3 - a1][2] \
+                        or ats[a3][3] != ats[a2 + a3 - a1][3]:
+                            egal = False
+                            break
+                        coupex.append(int(ats[a3][2].replace('Coupe x', '').replace(' : ', '')))
+                    if egal == True : 
+                        to_del.add(a2)                        
+                        ats_grouped[index][5] = int(ats_grouped[index][5]) + 1
+    return ats_grouped
         
 path = 'C:\\Users\\tc\\OneDrive\\Documents\\Projets\\superbar\\'
-wb_name = path + 'SuperBar_tmp.xlsm'
+wb_name = path + 'SuperBar.xlsm'
 wb = load_workbook(filename = wb_name, data_only = True)
 ws_name = 'SuperBar'
 
@@ -563,18 +595,18 @@ besoins = get_besoins(nomenclature)
 print("OK")
 print("\nMise en forme des besoins...")
 besoins_shaped = shape_besoins(besoins)
-# print(len(besoins_shaped))
-# pprint(besoins_shaped)
+print(len(besoins_shaped))
+pprint(besoins_shaped)
 print("OK")
 print("\nMise en forme des conditionnements...")
 conds = get_conds(besoins, conditionnements)
-# print(len(conds))
-# pprint(conds)
+print(len(conds))
+pprint(conds)
 print("OK")
 print("\nCalcul des besoins max...")
 besoins_max = get_besoins_max(besoins_shaped, conds)
 # print(len(besoins_max))
-# pprint(besoins_max)
+pprint(besoins_max)
 print("OK")
 print("\nCréation du tableau de checks besoins...")
 besoins_shaped_check = [[True for _ in range(len(besoins_shaped[b]))] for b in range(len(besoins_shaped))]
@@ -597,29 +629,31 @@ print("\nCalcul du nom du nouveau classeur...")
 new_wb_name = get_new_wb_name(wb_name, path)
 # print(new_wb_name)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCréation du nouveau classeur...")
 new_wb = create_wb(new_wb_name)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCopie de la feuille commande...")
 copy_sheet_bc(wb, new_wb, new_wb_name, "Bon de commande", path)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCopie de la feuille atelier...")
 copy_sheet_bc(wb, new_wb, new_wb_name, "Debit atelier", path)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCréation du bon de commande...")
 bcs = get_bcs(combis_opti, conditionnements)
 # pprint(bcs)
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nEcriture du bon de commande...")
 write_table(new_wb, new_wb_name, bcs, "Bon de commande")
 print("OK")
-print("\nRécupération de la nomenclature...")
+print("\nCréation du débit atelier...")
 ats = get_ats(bcs, combis_opti, besoins_shaped, conds)
 # pprint(ats)
 print("OK")
-print("\nRécupération de la nomenclature...")
+ats = group_ats(ats)
+# pprint(ats)
+print("\nEcriture du débit atelier...")
 write_table(new_wb, new_wb_name, ats, "Debit atelier")
-
+print("OK")
 
 # wb = Workbook()
 # ws = wb.create_sheet("new")
